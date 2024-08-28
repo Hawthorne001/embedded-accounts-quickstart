@@ -1,25 +1,33 @@
 "use client";
 
-import { createConfig } from "@alchemy/aa-alchemy/config";
-import { AlchemyAccountProvider } from "@alchemy/aa-alchemy/react";
-import { arbitrumSepolia } from "@alchemy/aa-core";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { PropsWithChildren, Suspense } from "react";
+import { config, queryClient } from "@/config";
+import {
+  AlchemyAccountProvider,
+  AlchemyAccountsProviderProps,
+} from "@account-kit/react";
+import { ThemeProvider } from "next-themes";
+import { PropsWithChildren } from "react";
 
-export const Providers = (props: PropsWithChildren) => {
-  const queryClient = new QueryClient();
-  const config = createConfig({
-    rpcUrl: "/api/rpc",
-    chain: arbitrumSepolia,
-  });
-
+// [!region providers]
+export const Providers = ({
+  initialState,
+  children,
+}: PropsWithChildren<{
+  initialState?: AlchemyAccountsProviderProps["initialState"];
+}>) => {
+  // providers:
+  // 1. theme provider makes it easy to switch between light and dark mode
+  // 2. alchemy account provider gives us access to react hooks everywhere
   return (
-    <Suspense>
-      <QueryClientProvider client={queryClient}>
-        <AlchemyAccountProvider config={config} queryClient={queryClient}>
-          {props.children}
-        </AlchemyAccountProvider>
-      </QueryClientProvider>
-    </Suspense>
+    <ThemeProvider attribute="class">
+      <AlchemyAccountProvider
+        config={config}
+        queryClient={queryClient}
+        initialState={initialState}
+      >
+        {children}
+      </AlchemyAccountProvider>
+    </ThemeProvider>
   );
 };
+// [!endregion providers]
